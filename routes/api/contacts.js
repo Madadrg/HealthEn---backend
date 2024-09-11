@@ -1,25 +1,25 @@
-const express = require('express')
+const express = require("express");
+const User = require("../../models/user");
+const router = express.Router();
 
-const router = express.Router()
+router.get("/verify/:verificationToken", async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      verificationToken: req.params.verificationToken,
+    });
 
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+    user.verify = true;
+    user.verificationToken = null;
+    await user.save();
 
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+    res.status(200).json({ message: "Verification successful" });
+  } catch (error) {
+    next(error);
+  }
+});
 
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-module.exports = router
+module.exports = router;
